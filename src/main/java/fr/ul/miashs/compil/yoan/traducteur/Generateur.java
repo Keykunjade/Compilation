@@ -10,12 +10,12 @@ public class Generateur {
     public String generer_affectation(Affectation a) {
         StringBuffer code = new StringBuffer();
         code.append(generer_expression(a.getFilsDroit()));
-        code.append("\tPop R0\n");
+        code.append("\tPOP(R0)\n");
         Idf i = (Idf) a.getFilsGauche();
         Element val = (Element) i.getValeur();
         //SI GLOBAL
         if (val.getCat() == Element.Cat.GLOBAL){
-            code.append("\tST(R0, " + val.getVal() + ")\n");
+            code.append("\tST(R0, " + val.getNom() + ")\n");
         }
         //SI LOCAL
         else if (val.getCat() == Element.Cat.LOCAL){
@@ -54,36 +54,44 @@ public class Generateur {
         StringBuffer code = new StringBuffer();
         for (Map.Entry<String, Element> e : tds.getTds().entrySet()){
             if (e.getValue().getCat() == Element.Cat.GLOBAL){
-                code.append(e.getValue().getNom() +":"+ "\tLONG("+e.getValue().getVal()+")\n");
+                if (e.getValue().getVal() != null){
+                    code.append(e.getValue().getNom() +":"+ "\tLONG("+e.getValue().getVal()+")\n");
+                }
+                else{
+                    code.append(e.getValue().getNom() +":"+ "\tLONG(0)\n");
+                }
             }
         }
         return code.toString();
     }
 
     public String generer_instruction(Noeud n){
-        String res;
+        StringBuffer code = new StringBuffer();
         if (n instanceof Affectation){
             Affectation a = (Affectation) n;
-            res = generer_affectation(a);
+            code.append(generer_affectation(a));
         }
         else if(n instanceof Si){
-            res = generer_si((Si) n);
+            code.append(generer_si((Si) n));
         }
         else if(n instanceof TantQue){
-            res = generer_tq((TantQue)n);
+            code.append(generer_tq((TantQue)n));
         }
         else if(n instanceof Appel){
-            res = generer_appel(n);
+            code.append(generer_appel(n));
         }
-        else{
-            res = generer_ecrire(n);
+        else if (n instanceof Ecrire){
+            code.append(generer_ecrire(n));
         }
-        return res;
+        else if (n instanceof Retour){
+            code.append(generer_retour(n));
+        }
+        return code.toString();
     }
 
     public String generer_ecrire(Noeud n){
         StringBuffer code = new StringBuffer();
-        code.append(generer_expression(n));
+        code.append(generer_expression(n.getFils().get(0)));
         code.append("\tPOP(R0)\n");
         code.append("\tWRINT()\n");
         return code.toString();
@@ -110,15 +118,25 @@ public class Generateur {
 
     public String generer_retour(Noeud n){
         StringBuffer code = new StringBuffer();
+        Retour r = (Retour) n;
+        code.append(generer_expression(r.getLeFils()));
+        code.append("\tPOP(R0)\n");
+        Element val = (Element) r.getValeur();
+        code.append("\tBR(ret_"+val.getScope().getNom()+")\n");
         return code.toString();
     }
 
-    public String generer_appel(Noeud a){
+    public String generer_appel(Noeud n){
         StringBuffer code = new StringBuffer();
-        if (a.getLabel().equals(Element.Type.VOID)){
-            code.append("ALLOCATE(1)");
+        Appel a = (Appel) n;
+        for (Noeud noeud : a.getFils()){
+            code.append(generer_expression(noeud));
         }
-        return "f";
+        Element val = (Element) a.getValeur();
+        code.append("\tCALL("+val.getNom() +")\n");
+        int nbArgs = a.getFils().size();
+        code.append("\tDEALLOCATE("+ nbArgs +")\n");
+        return code.toString();
     }
 
     public String generer_expression(Noeud n) {
@@ -127,7 +145,7 @@ public class Generateur {
         if (n instanceof Const) {
             Const c = (Const) n;
             code.append("\tCMOVE(" + c.getValeur() + ", R0)\n");
-            code.append("\tPush R0\n");
+            code.append("\tPUSH(R0)\n");
         }
         // CAS 2: Variable
         else if (n instanceof Idf) {
@@ -135,7 +153,7 @@ public class Generateur {
             Element val = (Element) i.getValeur();
             //SOUS CAS 1 : Global
             if (val.getCat() == Element.Cat.GLOBAL) {
-                code.append("\tLD(").append(val.getVal()).append(", R0)\n");
+                code.append("\tLD(").append(val.getNom()).append(", R0)\n");
             }
             //SOUS CAS 2 : Local
             else if (val.getCat() == Element.Cat.LOCAL) {
@@ -150,9 +168,17 @@ public class Generateur {
             code.append("\tPUSH(R0)\n");
         }
 
-        //CAS LIRE..
+        //CAS LIRE
+        else if (n instanceof Lire) {
+            code.append("\tRDINT()\n");
+            code.append("\tPUSH(R0)\n");
+        }
 
         //CAS APPEL
+        else if (n instanceof Appel) {
+            code.append(generer_appel(n));
+            code.append("\tPUSH(R0)\n");
+        }
 
         // CAS 3: Operations
         else if (n instanceof Plus || n instanceof Moins || n instanceof Multiplication || n instanceof Division) {
@@ -160,46 +186,46 @@ public class Generateur {
                 Multiplication m = (Multiplication) n;
                 code.append(generer_expression(m.getFilsGauche()));
                 code.append(generer_expression(m.getFilsDroit()));
-                code.append("\tPop(R1)\n");
+                code.append("\tPOP(R1)\n");
                 code.append("\tPOP(R0)\n");
-                code.append("\tMUL(R1, R0)\n");
+                code.append("\tMUL(R1, R0, R0)\n");
             } else if (n instanceof Division){
                 Division d = (Division) n;
                 code.append(generer_expression(d.getFilsGauche()));
                 code.append(generer_expression(d.getFilsDroit()));
-                code.append("\tPop(R1)\n");
-                code.append("\tPop(R0)\n");
-                code.append("\tDIV(R1, R0)\n");
+                code.append("\tPOP(R1)\n");
+                code.append("\tPOP(R0)\n");
+                code.append("\tDIV(R0, R1, R0)\n");
             } else if (n instanceof Plus){
                 Plus p = (Plus) n;
                 code.append(generer_expression(p.getFilsGauche()));
                 code.append(generer_expression(p.getFilsDroit()));
-                code.append("\tPop(R1)\n");
-                code.append("\tPop(R0)\n");
-                code.append("\tADD(R1, R0)\n");
+                code.append("\tPOP(R1)\n");
+                code.append("\tPOP(R0)\n");
+                code.append("\tADD(R1, R0, R0)\n");
             } else {
                 Moins m = (Moins) n;
                 code.append(generer_expression(m.getFilsGauche()));
                 code.append(generer_expression(m.getFilsDroit()));
-                code.append("\tPop(R1)\n");
-                code.append("\tPop(R0)\n");
-                code.append("\tSUB(R1, R0)\n");
+                code.append("\tPOP(R1)\n");
+                code.append("\tPOP(R0)\n");
+                code.append("\tSUB(R0, R1, R0)\n");
             }
-            code.append("\tPush(R0)\n");
+            code.append("\tPUSH(R0)\n");
             }
         return code.toString();
     }
 
     public String generer_si(Si s){
         StringBuffer code = new StringBuffer();
-        code.append("si " + s.getValeur() + ":\n");
-        //code.append(generer_condition(s.getFils(0)));
+        code.append("si" + s.getValeur() + ":\n");
+        code.append(generer_condition(s.getCondition()));
         code.append("\tPOP(R0)\n");
-        code.append("\tBF(R0, sinon_"+s.getValeur()+"\n");
-        //code.append(generer_bloc(s.getFils(1)));
-        code.append("\tPOP(R0, fsi_"+s.getValeur()+"\n");
+        code.append("\tBF(R0, sinon_"+s.getValeur()+")\n");
+        code.append(generer_bloc(s.getBlocAlors()));
+        code.append("\tBR(fsi_"+s.getValeur()+")\n");
         code.append("sinon_"+s.getValeur()+":\n");
-        //code.append(generer_bloc(s.getFils(2)));
+        code.append(generer_bloc(s.getBlocSinon()));
         code.append("fsi_"+s.getValeur()+":\n");
         return code.toString();
     }
@@ -270,12 +296,13 @@ public class Generateur {
 
     public String generer_tq(TantQue tq){
         StringBuffer code = new StringBuffer();
-        code.append("tq_"+tq.getValeur()+"\n");
+        code.append("tq_"+tq.getValeur()+":\n");
         code.append(generer_condition((tq.getCondition())));
         code.append("\tPOP(R0)\n");
-        code.append("\tBF(ftq_)"+tq.getValeur()+"\n");
-        code.append("\tBR(tq_)"+tq.getValeur()+"\n");
-        code.append("ftq_"+tq.getValeur()+"\n");
+        code.append("\tBF(R0, ftq_"+tq.getValeur()+")\n");
+        code.append(generer_bloc(tq.getBloc()));
+        code.append("\tBR(tq_"+tq.getValeur()+")\n");
+        code.append("ftq_"+tq.getValeur()+":\n");
         return code.toString();
 
     }

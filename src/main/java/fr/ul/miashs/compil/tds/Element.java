@@ -1,5 +1,7 @@
 package fr.ul.miashs.compil.tds;
 
+import fr.ul.miashs.compil.arbre.Fonction;
+
 public class Element {
     private String nom;
     private Type type;
@@ -7,7 +9,7 @@ public class Element {
     private Integer val;
     private Integer nb_param;
     private Integer rang;
-    private Integer nb_local;
+    private Integer nb_local = 0;
     private Element scope;
 
     //Variables
@@ -19,12 +21,27 @@ public class Element {
         this.nb_local = 0;
     }
 
-    //Fonction
+    //Fonction sans paramètres
     public Element(String nom, Type type, Cat cat) {
         this.nom = nom;
         this.type = type;
         this.cat = cat;
-        this.nb_local = 0;
+    }
+
+    public Element(String nom, Type type, Cat cat, Integer nb_param, Integer nb_local){
+        this.nom = nom;
+        this.type = type;
+        this.cat = cat;
+        this.nb_param = nb_param;
+        this.nb_local = nb_local;
+    }
+
+    public Element(String nom, Type type, Cat cat, Integer rang, Element scope){
+        this.nom = nom;
+        this.type = type;
+        this.cat = cat;
+        this.rang = rang;
+        this.scope = scope;
     }
 
     public enum Type{

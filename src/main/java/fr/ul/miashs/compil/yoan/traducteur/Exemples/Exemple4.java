@@ -9,10 +9,9 @@ public class Exemple4 {
         Generateur gen = new Generateur();
         //Initialisation de la tds
         Element main_elem = new Element("main", Element.Type.VOID, Element.Cat.FONCTION);
-        Element res = new Element("res", Element.Type.INT, Element.Cat.GLOBAL);
-        Element x_elem = new Element("x", Element.Type.INT, Element.Cat.GLOBAL);
+        Element res_elem = new Element("res", Element.Type.INT, Element.Cat.GLOBAL);
         tds.ajouter(main_elem.getNom(), main_elem);
-        tds.ajouter(res.getNom(), res);
+        tds.ajouter(res_elem.getNom(), res_elem);
 
         //Initialiation des noeuds
         Prog prog = new Prog();
@@ -22,9 +21,9 @@ public class Exemple4 {
         Ecrire ecrire = new Ecrire();
         fonction.ajouterUnFils(affectation);
         fonction.ajouterUnFils(ecrire);
-        Idf x = new Idf(x_elem);
-        affectation.setFilsGauche(x);
-        ecrire.setLeFils(x);
+        Idf res = new Idf(res_elem);
+        affectation.setFilsGauche(res);
+        ecrire.setLeFils(res);
         Plus plus = new Plus();
         affectation.setFilsDroit(plus);
         Multiplication mul = new Multiplication();

@@ -13,6 +13,10 @@ public class Exemple3 {
         Element a = new Element("a", Element.Type.INT, Element.Cat.GLOBAL, 100);
         Element b = new Element("b", Element.Type.INT, Element.Cat.GLOBAL, 170);
 
+        tds.ajouter("x",x);
+        tds.ajouter("a", a);
+        tds.ajouter("b", b);
+
         //Création des noeuds
         Prog prog = new Prog();
         Fonction main = new Fonction(main_elem);
