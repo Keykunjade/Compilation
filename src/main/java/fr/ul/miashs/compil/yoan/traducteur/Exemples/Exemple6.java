@@ -10,6 +10,8 @@ public class Exemple6 {
     public static void main(String[] args) {
         Tds tds = new Tds();
         Generateur gen = new Generateur();
+
+        //Instanciation  et ajout des éléments dans la tds
         Element main_elem = new Element("main", Element.Type.VOID, Element.Cat.FONCTION);
         Element f_elem = new Element("f", Element.Type.INT, Element.Cat.FONCTION, 2, 1);
         Element a_elem = new Element("a", Element.Type.INT, Element.Cat.GLOBAL, 100);
@@ -25,6 +27,7 @@ public class Exemple6 {
         tds.ajouter(b_param.getNom(), b_param);
         tds.ajouter(res_elem.getNom(), res_elem);
 
+        //Instanciation  et liaison des noeuds de l'AST
         Prog prog = new Prog();
         Fonction main = new Fonction(main_elem);
         Fonction f = new Fonction(f_elem);
@@ -67,6 +70,7 @@ public class Exemple6 {
         moins.setFilsDroit(cinq);
         moins.setFilsGauche(b_p);
 
+        //Affichage
         TxtAfficheur.afficher(prog);
         System.out.println(tds);
         System.out.println(gen.generer_programme(prog, tds));

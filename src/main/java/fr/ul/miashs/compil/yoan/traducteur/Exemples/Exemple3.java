@@ -5,19 +5,20 @@ import fr.ul.miashs.compil.yoan.traducteur.Generateur;
 
 public class Exemple3 {
     public static void main(String[] args) {
+        //Initialisation
         Tds tds = new Tds();
         Generateur gen = new Generateur();
+
         //Remplissage de la table des symboles
         Element main_elem = new Element("main", Element.Type.VOID, Element.Cat.FONCTION);
         Element x = new Element("x", Element.Type.INT, Element.Cat.GLOBAL, 0);
         Element a = new Element("a", Element.Type.INT, Element.Cat.GLOBAL, 100);
         Element b = new Element("b", Element.Type.INT, Element.Cat.GLOBAL, 170);
-
         tds.ajouter("x",x);
         tds.ajouter("a", a);
         tds.ajouter("b", b);
 
-        //Création des noeuds
+        //Instanciation  des noeuds
         Prog prog = new Prog();
         Fonction main = new Fonction(main_elem);
         Affectation affectation = new Affectation();

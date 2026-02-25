@@ -7,11 +7,13 @@ public class Exemple8 {
     public static void main(String[] args) {
         Tds tds = new Tds();
         Generateur gen = new Generateur();
+        //Instanciation  et ajout des éléments à la TDS
         Element main_elem = new Element("main", Element.Type.VOID, Element.Cat.FONCTION);
         Element i_elem = new Element("i", Element.Type.INT, Element.Cat.GLOBAL);
         tds.ajouter("main",main_elem);
         tds.ajouter("i",i_elem);
 
+        //Instanciation  et liaison des noeuds de l'AST
         Prog prog = new Prog();
         Fonction main = new Fonction(main_elem);
         prog.ajouterUnFils(main);
@@ -45,6 +47,7 @@ public class Exemple8 {
         Const un = new Const(1);
         plus.setFilsDroit(un);
 
+        //Affichage
         TxtAfficheur.afficher(prog);
         System.out.println(tds);
         System.out.println(gen.generer_programme(prog, tds));

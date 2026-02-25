@@ -7,6 +7,8 @@ public class Exemple7 {
     public static void main(String[] args) {
         Tds tds = new Tds();
         Generateur gen = new Generateur();
+
+        //Instanciation  et ajout des éléments à la table des symboles
         Element main_elem = new Element("main", Element.Type.VOID, Element.Cat.FONCTION);
         Element a_elem = new Element("a", Element.Type.INT, Element.Cat.GLOBAL, 1);
         Element b_elem = new Element("b", Element.Type.INT, Element.Cat.GLOBAL, 2);
@@ -17,6 +19,7 @@ public class Exemple7 {
         tds.ajouter("b", b_elem);
         tds.ajouter("x", x_elem);
 
+        //Instanciation  et liaison des noeuds de l'AST
         Prog prog = new Prog();
         Fonction main = new Fonction(main_elem);
         prog.ajouterUnFils(main);
@@ -45,6 +48,7 @@ public class Exemple7 {
         affectation_sinon.setFilsGauche(x_sinon);
         affectation_sinon.setFilsDroit(mille2);
 
+        //Affichage
         TxtAfficheur.afficher(prog);
         System.out.println(tds);
         System.out.println(gen.generer_programme(prog, tds));

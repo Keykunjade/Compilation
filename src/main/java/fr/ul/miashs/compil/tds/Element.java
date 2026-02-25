@@ -1,7 +1,8 @@
 package fr.ul.miashs.compil.tds;
-
-import fr.ul.miashs.compil.arbre.Fonction;
-
+/**
+ * Description : Classe représentant les élements d'une table des symboles
+ * @author Ighir Yoan
+ */
 public class Element {
     private String nom;
     private Type type;
@@ -12,7 +13,17 @@ public class Element {
     private Integer nb_local = 0;
     private Element scope;
 
-    //Variables
+    //ENUM
+    //Enumération des types et des catégories
+    public enum Type{
+        INT, VOID
+    }
+    public enum Cat{
+        GLOBAL, LOCAL, FONCTION, PARAM
+    }
+
+    //CONSTRUCTEURS
+    //Constructeur variables
     public Element(String nom, Type type, Cat cat, Integer val) {
         this.nom = nom;
         this.type = type;
@@ -21,13 +32,14 @@ public class Element {
         this.nb_local = 0;
     }
 
-    //Fonction sans paramètres
+    //Constructeur fonction sans paramètre
     public Element(String nom, Type type, Cat cat) {
         this.nom = nom;
         this.type = type;
         this.cat = cat;
     }
 
+    //Constructeur fonction avec paramètre
     public Element(String nom, Type type, Cat cat, Integer nb_param, Integer nb_local){
         this.nom = nom;
         this.type = type;
@@ -36,6 +48,7 @@ public class Element {
         this.nb_local = nb_local;
     }
 
+    //Constructeur paramètre
     public Element(String nom, Type type, Cat cat, Integer rang, Element scope){
         this.nom = nom;
         this.type = type;
@@ -44,17 +57,25 @@ public class Element {
         this.scope = scope;
     }
 
-    public enum Type{
-        INT, VOID
-    }
-
-    public enum Cat{
-        GLOBAL, LOCAL, FONCTION, PARAM
-    }
+    //METHODES
+    @Override
     public String toString() {
-        return "{"+this.getNom() + "," + this.getType() + "," + this.getCat() + "," + this.getVal() + "}";
+        StringBuffer sb = new StringBuffer("{");
+
+        sb.append(nom).append(", ");
+        sb.append(type).append(", ");
+        sb.append(cat);
+
+        if (val != null) sb.append(", val:").append(val);
+        if (nb_param != null) sb.append(", nbParam:").append(nb_param);
+        if (rang != null) sb.append(", rang:").append(rang);
+        if (nb_local != null && nb_local > 0) sb.append(", nbLocal:").append(nb_local);
+        if (scope != null) sb.append(", scope:").append(scope.getNom());
+
+        return sb.append("}").toString();
     }
 
+    //getters & setters
     public String getNom() {
         return nom;
     }

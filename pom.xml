@@ -38,13 +38,34 @@
 		<!-- Où stocker la distribution binaire -->
 		<project.bindist.dir>${project.basedir}/bindist</project.bindist.dir>
 		<!-- Nom de la classe principale -->
-		<project.bin.classname>${project.groupId}.${project.artifactId}.arbre.exemples.Exemple1</project.bin.classname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple1</project.bin.classname>
 		<!-- Nom de la classe principale -->
 		<project.bin.appname>ex1</project.bin.appname>
 		<!-- Nom de la classe principale #2 -->
-		<project.bin2.classname>${project.groupId}.${project.artifactId}.arbre.exemples.Exemple2</project.bin2.classname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple2</project.bin.classname>
 		<!-- Nom de la classe principale -->
 		<project.bin2.appname>ex2</project.bin2.appname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple3</project.bin.classname>
+		<!-- Nom de la classe principale -->
+		<project.bin2.appname>ex3</project.bin2.appname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple4</project.bin.classname>
+		<!-- Nom de la classe principale -->
+		<project.bin2.appname>ex4</project.bin2.appname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple5</project.bin.classname>
+		<!-- Nom de la classe principale -->
+		<project.bin2.appname>ex5</project.bin2.appname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple6</project.bin.classname>
+		<!-- Nom de la classe principale -->
+		<project.bin2.appname>ex6</project.bin2.appname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple7</project.bin.classname>
+		<!-- Nom de la classe principale -->
+		<project.bin2.appname>ex7</project.bin2.appname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple8</project.bin.classname>
+		<!-- Nom de la classe principale -->
+		<project.bin2.appname>ex8</project.bin2.appname>
+		<project.bin.classname>${project.groupId}.${project.artifactId}.yoan.traducteur.Exemples.Exemple9</project.bin.classname>
+		<!-- Nom de la classe principale -->
+		<project.bin2.appname>ex9</project.bin2.appname>
 	</properties>
 	<build>
 		<plugins>

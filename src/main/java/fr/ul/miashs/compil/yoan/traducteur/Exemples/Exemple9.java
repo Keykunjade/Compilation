@@ -7,13 +7,16 @@ public class Exemple9 {
     public static void main(String[] args) {
         Tds tds = new Tds();
         Generateur gen = new Generateur();
+        //Instanciation  et ajout des éléments dans la table des symboles
         Element main_elem = new Element("main", Element.Type.VOID, Element.Cat.FONCTION);
-        Element f_elem = new Element("f", Element.Type.INT, Element.Cat.FONCTION, 1);
+        Element f_elem = new Element("f", Element.Type.INT, Element.Cat.FONCTION);
+        f_elem.setNb_param(1);
         Element a_elem = new Element("a", Element.Type.INT, Element.Cat.PARAM, 0, f_elem);
         tds.ajouter("main",main_elem);
         tds.ajouter("f",f_elem);
         tds.ajouter("a",a_elem);
 
+        //Instanciation et liaison des noeuds de l'AST
         Prog prog = new Prog();
         Fonction main = new Fonction(main_elem);
         Fonction f = new Fonction(f_elem);
@@ -29,10 +32,12 @@ public class Exemple9 {
 
         Si si = new Si();
         Plus plus = new Plus();
-        Retour retour = new Retour(plus);
+        Retour retour = new Retour(f_elem);
         retour.setLeFils(plus);
+        f.ajouterUnFils(si);
+        f.ajouterUnFils(retour);
         Idf a = new Idf(a_elem);
-        Appel appel_f  = new Appel(f);
+        Appel appel_f  = new Appel(f_elem);
         plus.setFilsGauche(a);
         plus.setFilsDroit(appel_f);
         Moins moins = new Moins();
@@ -51,10 +56,11 @@ public class Exemple9 {
         inferieurEgal.setFilsDroit(zero);
         inferieurEgal.setFilsGauche(a_ie);
         Const zero_r = new Const(0);
-        Retour retour_f = new Retour(zero_r);
+        Retour retour_f = new Retour(f_elem);
         bloc.ajouterUnFils(retour_f);
         retour_f.setLeFils(zero_r);
 
+        //Affichage
         TxtAfficheur.afficher(prog);
         System.out.println(tds);
         System.out.println(gen.generer_programme(prog,tds));

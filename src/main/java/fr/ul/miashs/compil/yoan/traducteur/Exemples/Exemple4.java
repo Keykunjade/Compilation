@@ -13,7 +13,7 @@ public class Exemple4 {
         tds.ajouter(main_elem.getNom(), main_elem);
         tds.ajouter(res_elem.getNom(), res_elem);
 
-        //Initialiation des noeuds
+        //Initialiation des noeuds et liaison
         Prog prog = new Prog();
         Fonction fonction = new Fonction(main_elem);
         prog.ajouterUnFils(fonction);
@@ -42,6 +42,7 @@ public class Exemple4 {
         Const cinq = new Const(5);
         moins.setFilsDroit(cinq);
 
+        //Affichage
         TxtAfficheur.afficher(prog);
         System.out.println(tds);
         System.out.println(gen.generer_programme(prog, tds));

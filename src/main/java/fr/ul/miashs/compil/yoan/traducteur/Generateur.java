@@ -5,9 +5,20 @@ import fr.ul.miashs.compil.tds.Element;
 import fr.ul.miashs.compil.tds.Tds;
 import java.util.Map;
 
+/**
+ * Description : Classe contenant toutes les méthodes nécessaires à la génération
+ * d'un code assembleur (Bsim) à partir d'un arbre abstrait.
+ * @author Ighir Yoan
+ */
+
 public class Generateur {
 
     public String generer_affectation(Affectation a) {
+        /**
+         * Générer une affectation
+         * @param a : Noeud de type Affectation
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         code.append(generer_expression(a.getFilsDroit()));
         code.append("\tPOP(R0)\n");
@@ -31,12 +42,19 @@ public class Generateur {
     }
 
     public String generer_programme(Prog p, Tds tds){
+        /**
+         * Générer le programme
+         * @param p : Racine de l'arbre syntaxique de type Prog
+         * @param tds : Table des symboles associée à l'arbre syntaxique
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         code.append(".include beta.uasm\n");
         code.append(".include intio.uasm\n");
+        //permet d'afficher la console dans Bsim
+        code.append(".options tty\n");
         code.append("\tCMOVE(pile, SP)\n");
         code.append("\tBR(debut)\n");
-        //variables globales
         code.append(generer_data(tds));
         code.append("debut:\n");
         code.append("\tCALL(main)\n");
@@ -47,13 +65,21 @@ public class Generateur {
             code.append(generer_fonction(fonction));
         }
         code.append("pile:\n");
+        //permet de sauter 1024 bits pour avoir un espace reservé pour la pile.
+        code.append("\t.=. +1024");
         return code.toString();
     }
 
     public String generer_data(Tds tds){
+        /**
+         * Génère les données à partir de la table des symboles
+         * @param tds : Table des symboles associée à l'arbre syntaxique
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         for (Map.Entry<String, Element> e : tds.getTds().entrySet()){
             if (e.getValue().getCat() == Element.Cat.GLOBAL){
+                //Cas où la valeur n'est pas spécifiée
                 if (e.getValue().getVal() != null){
                     code.append(e.getValue().getNom() +":"+ "\tLONG("+e.getValue().getVal()+")\n");
                 }
@@ -66,6 +92,11 @@ public class Generateur {
     }
 
     public String generer_instruction(Noeud n){
+        /**
+         * Générer une instruction
+         * @param n : Noeud de l'AST.
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         if (n instanceof Affectation){
             Affectation a = (Affectation) n;
@@ -90,14 +121,25 @@ public class Generateur {
     }
 
     public String generer_ecrire(Noeud n){
+        /**
+         * Générer écriture
+         * @param n : Noeud de l'AST
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         code.append(generer_expression(n.getFils().get(0)));
         code.append("\tPOP(R0)\n");
+        //macri intio.uasm
         code.append("\tWRINT()\n");
         return code.toString();
     }
 
     public String generer_fonction(Fonction f){
+        /**
+         * Générer une fonction
+         * @param f : Noeud de l'AST de type Fonction
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         Element val = (Element) f.getValeur();
         code.append(val.getNom() + ":\n");
@@ -117,16 +159,31 @@ public class Generateur {
     }
 
     public String generer_retour(Noeud n){
+        /**
+         * Générer un retour
+         * @param n : Noeud de l'AST
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         Retour r = (Retour) n;
         code.append(generer_expression(r.getLeFils()));
         code.append("\tPOP(R0)\n");
         Element val = (Element) r.getValeur();
-        code.append("\tBR(ret_"+val.getScope().getNom()+")\n");
+        if (val.getScope() != null){
+            code.append("\tBR(ret_"+val.getScope().getNom()+")\n");
+        }
+        else{
+            code.append("\tBR(ret_"+val.getNom()+")\n");
+        }
         return code.toString();
     }
 
     public String generer_appel(Noeud n){
+        /**
+         * Générer un appel
+         * @param n : Noeud de l'AST
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         Appel a = (Appel) n;
         for (Noeud noeud : a.getFils()){
@@ -140,6 +197,11 @@ public class Generateur {
     }
 
     public String generer_expression(Noeud n) {
+        /**
+         * Générer une expression
+         * @param n : Noeud de l'AST
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         // CAS 1: Constante
         if (n instanceof Const) {
@@ -162,7 +224,7 @@ public class Generateur {
             }
             //SOUS CAS 3 : Paramètres
             else if (val.getCat() == Element.Cat.PARAM) {
-                int offset = (-1 - val.getScope().getNb_param() + val.getRang()) * 4;
+                int offset = (-2 - val.getScope().getNb_param() + val.getRang()) * 4;
                 code.append("\tGETFRAME(").append(offset).append(", R0)\n");
             }
             code.append("\tPUSH(R0)\n");
@@ -217,6 +279,11 @@ public class Generateur {
     }
 
     public String generer_si(Si s){
+        /**
+         * Générer une condition
+         * @param s : Noeud de l'AST de type SI
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         code.append("si" + s.getValeur() + ":\n");
         code.append(generer_condition(s.getCondition()));
@@ -231,6 +298,11 @@ public class Generateur {
     }
 
     public String generer_bloc(Bloc b){
+        /**
+         * Générer un bloc
+         * @param b : Noeud de l'AST de type Bloc
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         for (Noeud f : b.getFils()){
             code.append(generer_instruction(f));
@@ -239,6 +311,11 @@ public class Generateur {
     }
 
     public String generer_condition(Noeud c){
+        /**
+         * Générer une condition
+         * @param c : Noeud de l'AST
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         if (c instanceof Superieur) {
             Superieur s = (Superieur) c;
@@ -295,6 +372,11 @@ public class Generateur {
 
 
     public String generer_tq(TantQue tq){
+        /**
+         * Générer une itération
+         * @param tq : Noeud de l'AST de type TantQue
+         * @return code assembleur correspondant
+         */
         StringBuffer code = new StringBuffer();
         code.append("tq_"+tq.getValeur()+":\n");
         code.append(generer_condition((tq.getCondition())));

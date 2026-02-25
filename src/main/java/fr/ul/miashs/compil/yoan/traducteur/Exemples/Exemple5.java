@@ -5,8 +5,11 @@ import fr.ul.miashs.compil.arbre.*;
 
 public class Exemple5 {
     public static void main(String[] args) {
+        //Initialisation
         Tds tds = new Tds();
         Generateur gen = new Generateur();
+
+        //Instanciation  et ajout des éléments dans la TDS
         Element main_elem = new Element("main", Element.Type.VOID, Element.Cat.FONCTION);
         Element a_elem = new Element("a", Element.Type.INT, Element.Cat.GLOBAL, 100);
         Element b_elem = new Element("b", Element.Type.INT, Element.Cat.GLOBAL, 170);
@@ -15,6 +18,7 @@ public class Exemple5 {
         tds.ajouter(a_elem.getNom(), a_elem);
         tds.ajouter(b_elem.getNom(), b_elem);
 
+        //Instanciation  et liaison des noeuds de l'AST
         Prog prog = new Prog();
         Fonction main = new Fonction(main_elem);
         prog.ajouterUnFils(main);
@@ -39,6 +43,7 @@ public class Exemple5 {
         moins.setFilsGauche(b);
         moins.setFilsDroit(cinq);
 
+        //Affichage
         TxtAfficheur.afficher(prog);
         System.out.println(tds);
         System.out.println(gen.generer_programme(prog, tds));
