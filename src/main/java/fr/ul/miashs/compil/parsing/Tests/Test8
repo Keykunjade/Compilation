@@ -1,0 +1,10 @@
+//Exemple 8
+int i
+
+function void main(){
+    i = 0
+    while (i < 6){
+        write(i)
+        i = i + 1
+    }
+}

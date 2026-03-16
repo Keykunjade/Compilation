@@ -1,0 +1,7 @@
+//exemple 3
+int x = 0
+int a = 100
+int b = 170
+function void main(){
+    x = (a*2)+(b-5)/3
+}

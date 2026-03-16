@@ -1,0 +1,7 @@
+//exemple 5
+int a = 100
+int b = 170
+
+function void main(){
+    write((a*2)+(b-5)/3)
+}

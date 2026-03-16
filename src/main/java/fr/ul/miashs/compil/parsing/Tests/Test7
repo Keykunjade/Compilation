@@ -1,0 +1,13 @@
+//Exemple 7
+int a = 1
+int b = 2
+int x
+
+function void main(){
+    if (a>b){
+        x = 1000
+    }
+    else{
+        x = 2000
+    }
+}

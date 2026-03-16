@@ -61,8 +61,10 @@ public class Generateur {
         code.append("\tHALT()\n");
         //fonctions
         for (Noeud f : p.getFils()){
-            Fonction fonction = (Fonction) f;
-            code.append(generer_fonction(fonction));
+            if (f instanceof Fonction) {
+                Fonction fonction = (Fonction) f;
+                code.append(generer_fonction(fonction));
+            }
         }
         code.append("pile:\n");
         //permet de sauter 1024 bits pour avoir un espace reservé pour la pile.
@@ -117,6 +119,9 @@ public class Generateur {
         else if (n instanceof Retour){
             code.append(generer_retour(n));
         }
+        else if (n instanceof Bloc){
+            code.append(generer_bloc((Bloc) n));
+        }
         return code.toString();
     }
 
@@ -166,14 +171,20 @@ public class Generateur {
          */
         StringBuffer code = new StringBuffer();
         Retour r = (Retour) n;
-        code.append(generer_expression(r.getLeFils()));
-        code.append("\tPOP(R0)\n");
-        Element val = (Element) r.getValeur();
-        if (val.getScope() != null){
-            code.append("\tBR(ret_"+val.getScope().getNom()+")\n");
+        if (r.getLeFils() != null) {
+            code.append(generer_expression(r.getLeFils()));
+            code.append("\tPOP(R0)\n");
         }
-        else{
-            code.append("\tBR(ret_"+val.getNom()+")\n");
+        Object valObj = r.getValeur();
+        String nomFonction = "";
+        if (valObj instanceof Element) {
+            Element e = (Element) valObj;
+            nomFonction = e.getNom();
+        } else if (valObj instanceof String) {
+            nomFonction = (String) valObj;
+        }
+        if (!nomFonction.isEmpty()) {
+            code.append("\tBR(ret_" + nomFonction + ")\n");
         }
         return code.toString();
     }

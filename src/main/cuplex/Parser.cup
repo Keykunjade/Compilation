@@ -1,0 +1,191 @@
+package fr.ul.miashs.compil.parsing;
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import fr.ul.miashs.compil.arbre.*;
+
+action code {:
+    //Fonction en cours de parsing
+    String fonctionActuelle = "";
+:};
+
+/* Terminaux */
+terminal FUNCTION, VOID, INT, RETURN, IF, ELSE, WHILE, WRITE, READ;
+terminal PLUS, MINUS, MULT, DIV, ASSIGN;
+terminal GT, LT, LE, GE, EQ, NEQ;
+terminal LPAREN, RPAREN, LBRACE, RBRACE, COMMA;
+terminal Integer NUMBER;
+terminal String IDENTIFIER;
+
+/* Non-terminaux */
+non terminal Prog program;
+non terminal ArrayList<Noeud> decl_list, stmt_list;
+non terminal Noeud decl, var_decl, func_decl;
+non terminal Object type;
+non terminal ArrayList<Idf> param_list, params;
+non terminal Idf param;
+non terminal Bloc block;
+non terminal Noeud stmt;
+non terminal Noeud expr;
+non terminal ArrayList<Noeud> arg_list, args;
+
+/* Précédence */
+precedence left GT, LT, LE, GE, EQ, NEQ;
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+
+start with program;
+
+/* --- Structure globale --- */
+program ::= decl_list:dl {:
+                Prog p = new Prog();
+                for(Noeud n : dl) {
+                    if (n != null) p.getFils().add(n);
+                }
+                RESULT = p;
+            :} ;
+
+decl_list ::= decl_list:dl decl:d {: dl.add(d); RESULT = dl; :}
+            | decl:d {: ArrayList<Noeud> list = new ArrayList<>(); list.add(d); RESULT = list; :} ;
+
+decl ::= var_decl:v {: RESULT = v; :}
+       | func_decl:f {: RESULT = f; :} ;
+
+/* --- Déclarations --- */
+var_decl ::= type:t IDENTIFIER:id ASSIGN expr:e {:
+                 Affectation a = new Affectation();
+                 a.setFilsGauche(new Idf(id));
+                 a.setFilsDroit(e);
+                 RESULT = a;
+             :}
+           | type:t IDENTIFIER:id {: RESULT = new Idf(id); :} ;
+
+type ::= INT {: RESULT = "int"; :}
+       | VOID {: RESULT = "void"; :} ;
+
+func_decl ::= FUNCTION type:t IDENTIFIER:id
+                  {: fonctionActuelle = id; :}
+                  LPAREN param_list:pl RPAREN block:b {:
+                  Fonction f = new Fonction(id);
+                  for(Idf p : pl) { f.getFils().add(p); }
+                  f.getFils().add(b);
+                  RESULT = f;
+              :} ;
+
+/* --- Paramètres --- */
+param_list ::= params:p {: RESULT = p; :}
+             | /* vide */ {: RESULT = new ArrayList<Idf>(); :} ;
+
+params ::= params:p COMMA param:pm {: p.add(pm); RESULT = p; :}
+         | param:pm {: ArrayList<Idf> list = new ArrayList<>(); list.add(pm); RESULT = list; :} ;
+
+param ::= type:t IDENTIFIER:id {: RESULT = new Idf(id); :} ;
+
+/* --- Blocs et Instructions --- */
+block ::= LBRACE stmt_list:sl RBRACE {:
+              Bloc b = new Bloc();
+              for(Noeud n : sl) {
+                  if (n != null) b.getFils().add(n);
+              }
+              RESULT = b;
+          :} ;
+
+stmt_list ::= stmt_list:sl stmt:s {: sl.add(s); RESULT = sl; :}
+            | /* vide */ {: RESULT = new ArrayList<Noeud>(); :} ;
+
+stmt ::= var_decl:v {: RESULT = v; :}
+       | IDENTIFIER:id ASSIGN expr:e {:
+             Affectation a = new Affectation();
+             a.setFilsGauche(new Idf(id));
+             a.setFilsDroit(e);
+             RESULT = a;
+         :}
+       | WRITE LPAREN expr:e RPAREN {:
+             Ecrire ec = new Ecrire();
+             ec.setLeFils(e);
+             RESULT = ec;
+         :}
+       | RETURN expr:e {:
+             Retour r = new Retour(fonctionActuelle);
+             r.setLeFils(e);
+             RESULT = r;
+         :}
+       | IF LPAREN expr:e RPAREN block:b {:
+             Si s = new Si();
+             s.setCondition(e);
+             s.setBlocAlors(b);
+             RESULT = s;
+         :}
+       | IF LPAREN expr:e RPAREN block:b1 ELSE block:b2 {:
+             Si s = new Si();
+             s.setCondition(e);
+             s.setBlocAlors(b1);
+             s.setBlocSinon(b2);
+             RESULT = s;
+         :}
+       | WHILE LPAREN expr:e RPAREN block:b {:
+             TantQue tq = new TantQue();
+             tq.setCondition(e);
+             tq.setBloc(b);
+             RESULT = tq;
+         :}
+       | IDENTIFIER:id LPAREN arg_list:al RPAREN {:
+             Appel a = new Appel(id);
+             for(Noeud arg : al) { a.getFils().add(arg); }
+             RESULT = a;
+         :} ;
+
+/* --- Expressions --- */
+expr ::= expr:e1 PLUS expr:e2 {:
+             Plus p = new Plus(); p.setFilsGauche(e1); p.setFilsDroit(e2); RESULT = p;
+         :}
+       | expr:e1 MINUS expr:e2 {:
+             Moins m = new Moins(); m.setFilsGauche(e1); m.setFilsDroit(e2); RESULT = m;
+         :}
+       | expr:e1 MULT expr:e2 {:
+             Multiplication mul = new Multiplication(); mul.setFilsGauche(e1); mul.setFilsDroit(e2); RESULT = mul;
+         :}
+       | expr:e1 DIV expr:e2 {:
+             Division d = new Division(); d.setFilsGauche(e1); d.setFilsDroit(e2); RESULT = d;
+         :}
+       | expr:e1 GT expr:e2 {:
+             Superieur s = new Superieur(); s.setFilsGauche(e1); s.setFilsDroit(e2); RESULT = s;
+         :}
+       | expr:e1 LT expr:e2 {:
+             Inferieur i = new Inferieur(); i.setFilsGauche(e1); i.setFilsDroit(e2); RESULT = i;
+         :}
+       | expr:e1 LE expr:e2 {:
+             InferieurEgal ie = new InferieurEgal(); ie.setFilsGauche(e1); ie.setFilsDroit(e2); RESULT = ie;
+         :}
+       | expr:e1 GE expr:e2 {:
+             SuperieurEgal se = new SuperieurEgal(); se.setFilsGauche(e1); se.setFilsDroit(e2); RESULT = se;
+         :}
+       | expr:e1 EQ expr:e2 {:
+             Egal eq = new Egal(); eq.setFilsGauche(e1); eq.setFilsDroit(e2); RESULT = eq;
+         :}
+       | expr:e1 NEQ expr:e2 {:
+             Different dif = new Different(); dif.setFilsGauche(e1); dif.setFilsDroit(e2); RESULT = dif;
+         :}
+       | LPAREN expr:e RPAREN {:
+             RESULT = e;
+         :}
+       | IDENTIFIER:id {:
+             RESULT = new Idf(id);
+         :}
+       | NUMBER:n {:
+             RESULT = new Const(n);
+         :}
+       | READ {:
+             RESULT = new Lire();
+         :}
+       | IDENTIFIER:id LPAREN arg_list:al RPAREN {:
+             Appel a = new Appel(id);
+             for(Noeud arg : al) { a.getFils().add(arg); }
+             RESULT = a;
+         :} ;
+
+/* --- Arguments --- */
+arg_list ::= args:a {: RESULT = a; :}
+           | /* vide */ {: RESULT = new ArrayList<Noeud>(); :} ;
+
+args ::= args:a COMMA expr:e {: a.add(e); RESULT = a; :}
+       | expr:e {: ArrayList<Noeud> list = new ArrayList<>(); list.add(e); RESULT = list; :} ;

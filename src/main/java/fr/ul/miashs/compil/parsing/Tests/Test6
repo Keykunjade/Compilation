@@ -1,0 +1,12 @@
+//exemple 6
+int a = 100
+int c = 170
+
+function void main(){
+    write(f(a,c))
+}
+
+function int f(int a,int b){
+    int res = (a*2)+(b-5)/3
+    return res
+}

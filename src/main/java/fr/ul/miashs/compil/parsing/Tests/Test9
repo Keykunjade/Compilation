@@ -1,0 +1,12 @@
+//Exemple 9
+
+function void main(){
+    write(f(6))
+}
+
+function int f(int a){
+    if (a <= 0){
+        return 0
+    }
+    return a+f(a-1)
+}

@@ -1,0 +1,7 @@
+//exemple 4
+int res
+
+function void main(){
+    int x = (read*2)+(read-5)/3
+    write(x)
+}

@@ -97,7 +97,7 @@ then
   REPO="$BASEDIR"/repo
 fi
 
-CLASSPATH="$BASEDIR"/etc:"$REPO"/fr/ul/miashs/compil/1.0/compil-1.0.jar
+CLASSPATH="$BASEDIR"/etc:"$REPO"/com/github/vbmacher/java-cup-runtime/11b-20160615/java-cup-runtime-11b-20160615.jar:"$REPO"/fr/ul/miashs/compil/1.0/compil-1.0.jar
 
 ENDORSED_DIR=
 if [ -n "$ENDORSED_DIR" ] ; then
@@ -119,10 +119,10 @@ fi
 
 exec "$JAVACMD" $JAVA_OPTS  \
   -classpath "$CLASSPATH" \
-  -Dapp.name="ex1" \
+  -Dapp.name="compil" \
   -Dapp.pid="$$" \
   -Dapp.repo="$REPO" \
   -Dapp.home="$BASEDIR" \
   -Dbasedir="$BASEDIR" \
-  fr.ul.miashs.compil.arbre.exemples.Exemple1 \
+  fr.ul.miashs.compil.parsing.Main \
   "$@"
